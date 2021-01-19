@@ -1,0 +1,15 @@
+package com.eureka.auth.services;
+
+import com.eureka.auth.entities.AppRole;
+import com.eureka.auth.entities.AppUser;
+import com.eureka.auth.entities.User;
+
+public interface AccountService {
+	public User saveUser(User user);
+
+	public AppRole saveRole(AppRole appRole);
+
+	public AppUser findUserByUserName(String username);
+
+	public void addRoleToUser(String username, String role);
+}

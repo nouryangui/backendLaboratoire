@@ -1,0 +1,71 @@
+package com.eureka.auth.web;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bezkoder.springjwt.payload.response.JwtResponse;
+import com.bezkoder.springjwt.security.services.UserDetailsImpl;
+import com.eureka.auth.entities.AppUser;
+import com.eureka.auth.services.AccountService;
+import com.eureka.auth.services.AccountServiceImpl;;
+
+@RestController
+public class AccountRestController {
+	@Autowired
+	private AccountService accountService;
+	@Autowired
+	AuthenticationManager authenticationManager;
+	@PostMapping("/signin")
+	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = jwtUtils.generateJwtToken(authentication);
+		
+		AccountServiceImpl userDetails = (AccountServiceImpl) authentication.getPrincipal();		
+		List<String> roles = userDetails.getAuthorities().stream()
+				.map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+
+		return ResponseEntity.ok(new JwtResponse(jwt, 
+												 userDetails.getId(), 
+												 userDetails.getUsername(), 
+												 userDetails.getEmail(), 
+												 roles));
+	}
+	@PostMapping(value = "/register")
+	public AppUser register(@RequestBody RegisterForm userForm) {
+		if (!userForm.getPassword().equals(userForm.getRepassword()))
+
+		{
+			throw new RuntimeException("You must confirm your password");
+		}
+
+		AppUser user = accountService.findUserByUserName(userForm.getUsername());
+		if (user != null) {
+			throw new RuntimeException("user already exist");
+		}
+		AppUser appUser = new AppUser();
+
+		appUser.setUsername(userForm.getUsername());
+		appUser.setPassword(userForm.getPassword());
+		accountService.saveUser(appUser);
+		accountService.addRoleToUser(userForm.getUsername(),"user");
+		return appUser;
+	}
+
+}

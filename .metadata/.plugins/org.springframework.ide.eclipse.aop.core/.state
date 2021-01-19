@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop-reference-model>
+<aop-project name="spring-eureka-gallery"/>
+<aop-project name="spring-boot-spring-security-jwt-authentication-master"/>
+<aop-project name="event"/>
+<aop-project name="spring-eureka-auth"/>
+<aop-project name="member"/>
+<aop-project name="spring-eureka-common"/>
+<aop-project name="spring-eureka-server"/>
+<aop-project name="spring-eureka-zuul"/>
+</aop-reference-model>

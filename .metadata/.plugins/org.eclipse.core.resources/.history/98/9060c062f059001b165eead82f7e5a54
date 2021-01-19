@@ -1,0 +1,32 @@
+package com.eureka.auth.web;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import com.eureka.auth.entities.AppUser;
+import com.eureka.auth.services.AccountService;;
+
+@RestController
+public class AccountRestController {
+	@Autowired
+	private AccountService accountService;
+
+	@PostMapping(value = "/register")
+	public AppUser register(@RequestBody RegisterForm userForm) {
+		
+		AppUser user = accountService.findUserByUserName(userForm.getUsername());
+		if (user != null) {
+			throw new RuntimeException("user already exist");
+		}
+		AppUser appUser = new AppUser();
+
+		appUser.setUsername(userForm.getUsername());
+		appUser.setPassword(userForm.getPassword());
+		appUser.setEmail(userForm.getEmail());
+		accountService.saveUser(appUser);
+		accountService.addRoleToUser(userForm.getUsername(),"user");
+		return appUser;
+	}
+
+}

@@ -1,0 +1,15 @@
+package com.eureka.auth.web;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
+import lombok.Data;
+
+@Data
+public class RegisterForm {
+	@NotBlank
+	@Size(min = 3, max = 20)
+	private String username;
+	private String password;
+	private String email;
+}
